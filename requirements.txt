@@ -1,0 +1,7 @@
+setuptools
+sentry-sdk<2
+pytz
+requests
+KalturaApiClient
+lxml
+pyjwt

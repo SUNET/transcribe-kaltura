@@ -1,0 +1,12 @@
+{
+  "default_model": "whisper_large_v3",
+  "language_override": {
+    "Swedish": "whisper_large_kb_se"
+  },
+  "partner_override": {
+    "371": {
+      "Swedish": "whisper_large_kb_se",
+      "Danish": "whisper_large_kb_dk"
+    }
+  }
+}
