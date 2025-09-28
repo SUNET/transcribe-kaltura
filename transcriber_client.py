@@ -84,6 +84,11 @@ class TranscriberClient:
         return res
 
 
+    def build_task_result_url(self, endpoint):
+
+        return self.__baseurl + endpoint
+
+
 
 
 

@@ -15,6 +15,7 @@ from datetime import timedelta
 
 import KalturaClient
 from KalturaClient.Plugins import Core as KalturaCore
+from KalturaClient.Plugins.Core import KalturaUrlResource, KalturaKeyValue
 from KalturaClient.Plugins import Reach as KalturaReach
 
 from KalturaClient.exceptions import KalturaClientException
@@ -301,9 +302,14 @@ def handleProcessing(task, entryClient, transcriberClient, kalClient):
     captionId = entryClient.caption.captionAsset.add(task.entryId, captionAsset).id
     logger.debug('New caption ID: %s', captionId)
 
-    urlResource = KalturaClient.Plugins.Core.KalturaUrlResource(url=url, urlHeaders=["x-client-dn: Kaltura-adaptor"])
+    builtUrl = transcriberClient.build_task_result_url(url)
+
+    logger.debug("Built Url: {}".format(builtUrl))
+
+    urlResource = KalturaClient.Plugins.Core.KalturaUrlResource(url=builtUrl, urlHeaders=[KalturaKeyValue("x-client-dn", "Kaltura-adaptor")])
 
     try:
+        logger.info("setContent -  {} . {}".format(captionId, urlResource))
         entryClient.caption.captionAsset.setContent(captionId, urlResource)
         captionObj = entryClient.caption.captionAsset.get(captionId)
         retry = 0
