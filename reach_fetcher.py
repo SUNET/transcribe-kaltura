@@ -106,8 +106,7 @@ def getKalturaClient(args, ks=None):
         wclient.setKs(wsession.ks)
 
         tokenHash = hashlib.sha256((wsession.ks + os.environ['KALTURAPARTNERSECRET']).encode('ascii')).hexdigest()
-        print("Kaltura Partner Secret: " + os.environ['KALTURAPARTNERSECRET'])
-        print("taken Hash: " + tokenHash)
+
         res = wclient.appToken.startSession(args.kaltura_token_id, tokenHash, '', KalturaCore.KalturaSessionType.ADMIN, timestamp, '')
         ks = res.ks
         wclient.setKs(ks)
@@ -199,7 +198,6 @@ def handlePending(task, entryClient, transcriberClient, kalClient):
         newTask = {
             "prirority": "Medium",
             "model": model,
-            # "model": "whisper_large_kb_se",
             "billingRef": str(task.id),
             "file_url": url,
             "language": sourceLanguage
@@ -276,11 +274,6 @@ def handleProcessing(task, entryClient, transcriberClient, kalClient):
 
     captionId = entryClient.caption.captionAsset.add(task.entryId, captionAsset).id
     logger.debug('New caption ID: %s', captionId)
-
-    builtUrl = transcriberClient.build_task_result_url(url)
-
-    logger.debug("Built Url: {}".format(builtUrl))
-
     #urlResource = KalturaClient.Plugins.Core.KalturaUrlResource(url=builtUrl, urlHeaders=[KalturaKeyValue("x-client-dn", "Kaltura-adaptor")])
 
     stringResource = KalturaStringResource(content=transcriberTask["result_srt"])

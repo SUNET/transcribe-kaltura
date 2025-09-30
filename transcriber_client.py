@@ -25,7 +25,8 @@ class TranscriberClient:
             "output_format": "srt",
             "user_id": "kaltura-adaptor",
             "file_url": task["file_url"],
-            "id": task["billingRef"]
+            "id": task["billingRef"],
+            "language": task["language"]
         }
 
         # newTask = {
