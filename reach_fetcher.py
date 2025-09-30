@@ -15,7 +15,7 @@ from datetime import timedelta
 
 import KalturaClient
 from KalturaClient.Plugins import Core as KalturaCore
-from KalturaClient.Plugins.Core import KalturaUrlResource, KalturaKeyValue
+from KalturaClient.Plugins.Core import KalturaUrlResource, KalturaKeyValue, KalturaStringResource
 from KalturaClient.Plugins import Reach as KalturaReach
 
 from KalturaClient.exceptions import KalturaClientException
@@ -263,36 +263,11 @@ def handleProcessing(task, entryClient, transcriberClient, kalClient):
         logger.debug('Task not ready.')
         return
 
-    vttUrl = None
-    srtUrl = None
-
-    if transcriberTask['output_format'] == 'vtt':
-        vttUrl = transcriberTask['result_url']
-    elif transcriberTask['output_format'] == 'srt':
-        srtUrl = transcriberTask['result_url']
-    else:
-        logger.debug('Skipping type %s', file['type'])
-    # logger.debug(transcriberJson)
-    logger.debug('VTT: %s', vttUrl)
-    logger.debug('SRT: %s', srtUrl)
-
     captionAsset = KalturaClient.Plugins.Caption.KalturaCaptionAsset()
     captionAsset.tags = "ndn-whisper"
     captionAsset.language = sourceLanguage
     captionAsset.label = sourceLanguage + " (Whisper)"
     captionAsset.accuracy = 90
-    if vttUrl:
-        captionAsset.fileExt = "vtt"
-        captionAsset.format = KalturaClient.Plugins.Caption.KalturaCaptionType.WEBVTT
-        url = vttUrl
-    elif srtUrl:
-        captionAsset.fileExt = "srt"
-        captionAsset.format = KalturaClient.Plugins.Caption.KalturaCaptionType.SRT
-        url = srtUrl
-    else:
-        logger.error('No URL found for task %s', task.id)
-        # TODO send error
-        return
 
     # FOR TESTING
     # captionAsset.fileExt = "vtt"
@@ -306,11 +281,13 @@ def handleProcessing(task, entryClient, transcriberClient, kalClient):
 
     logger.debug("Built Url: {}".format(builtUrl))
 
-    urlResource = KalturaClient.Plugins.Core.KalturaUrlResource(url=builtUrl, urlHeaders=[KalturaKeyValue("x-client-dn", "Kaltura-adaptor")])
+    #urlResource = KalturaClient.Plugins.Core.KalturaUrlResource(url=builtUrl, urlHeaders=[KalturaKeyValue("x-client-dn", "Kaltura-adaptor")])
+
+    stringResource = KalturaStringResource(content=transcriberTask["result_srt"])
 
     try:
-        logger.info("setContent -  {} . {}".format(captionId, urlResource))
-        entryClient.caption.captionAsset.setContent(captionId, urlResource)
+        logger.info("setContent -  {} . {}".format(captionId, stringResource))
+        entryClient.caption.captionAsset.setContent(captionId, stringResource)
         captionObj = entryClient.caption.captionAsset.get(captionId)
         retry = 0
 
